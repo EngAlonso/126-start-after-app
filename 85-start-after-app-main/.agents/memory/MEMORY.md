@@ -1,0 +1,1 @@
+- [Expo Android build environment](expo-android-build.md) — provision all required SDK components together and check for the ignored debug keystore before release packaging.

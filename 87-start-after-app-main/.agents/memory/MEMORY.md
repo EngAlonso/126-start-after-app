@@ -1,0 +1,1 @@
+- [Android FCM channel lifecycle](android-fcm-channel-lifecycle.md) — create FCM channels natively before React Native starts so terminated-state notifications have a valid channel.

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  FNASHHA — Android String Resources
+  =====================================
+  After running `npx cap add android`, merge these strings into:
+    android/app/src/main/res/values/strings.xml
+
+  These are the user-facing permission explanation strings shown
+  in the Android permission rationale dialogs.
+-->
+<resources>
+    <string name="app_name">Fnashha</string>
+    <string name="title_activity_main">Fnashha</string>
+    <string name="package_name">com.fnashha.app</string>
+    <string name="custom_url_scheme">com.fnashha.app</string>
+
+    <!-- Permission rationale strings (Arabic) -->
+    <string name="camera_permission_rationale">تحتاج فنشها إلى الكاميرا لتصوير طلبات الخدمة وإرسال الصور</string>
+    <string name="microphone_permission_rationale">تحتاج فنشها إلى الميكروفون لإرسال المذكرات الصوتية في الدردشة</string>
+    <string name="storage_permission_rationale">تحتاج فنشها إلى الوصول للصور لرفع صور الطلبات والملف الشخصي</string>
+</resources>

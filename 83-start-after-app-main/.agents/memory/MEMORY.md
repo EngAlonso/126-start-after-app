@@ -1,0 +1,1 @@
+- [Android build environment](android-build-environment.md) — APK verification requires SDK/platform packages that imported projects may not include.

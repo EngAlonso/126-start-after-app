@@ -1,0 +1,1 @@
+- [Expo notification startup](expo-notification-startup.md) — queue cold-start responses until auth, intro, and router readiness; reuse the central route mapper.

@@ -1,0 +1,1 @@
+- [Restore schema safety](restore-schema-safety.md) — synchronize with existing bootstrap and verify schema before any restore safety backup or destructive data operation.

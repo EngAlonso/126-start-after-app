@@ -1,0 +1,4 @@
+- [Campaign datetime interpretation](campaign-datetime.md) — Registration-range campaign dates are Egypt-local and inclusive.
+- [Campaign inactivity activity timestamp](campaign-inactivity.md) — Inactivity uses completed request updated_at, matching the existing completion transition.
+- [Acceptance query aggregation](acceptance-query-aggregation.md) — Keep grouped target and population assertions separate to avoid test-only join fan-out.
+- [Android referral app links](android-referral-app-links.md) — Use a slash-terminated referral path prefix to avoid claiming unrelated `/r...` web routes.

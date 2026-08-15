@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /customer/
+Disallow: /technician/
+Disallow: /founder/
+Disallow: /login
+Disallow: /register
+Disallow: /messages/
+Disallow: /requests/
+Disallow: /support/
+Disallow: /wallet/
+Disallow: /r/
+Sitemap: https://fnashha.com/sitemap.xml

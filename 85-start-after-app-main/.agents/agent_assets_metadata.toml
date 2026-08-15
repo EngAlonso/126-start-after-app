@@ -1,0 +1,9 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "7tib4ZsQw4Ix5Sb0rShAv"
+uri = "file://artifacts/fnashha-expo/android/app/build/outputs/apk/release/app-release.apk"
+type = "unspecified"
+title = "Fnashha Android Release APK"
+description = "Release APK built from the Expo mobile app with the requested backend URL configured."

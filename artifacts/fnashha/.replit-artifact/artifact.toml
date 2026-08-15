@@ -1,0 +1,103 @@
+kind = "web"
+previewPath = "/"
+title = "Fnashha - فنشها"
+version = "1.0.0"
+id = "artifacts/fnashha"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 3000
+
+[services.development]
+run = "pnpm --filter @workspace/fnashha run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/fnashha", "run", "build" ]
+publicDir = "artifacts/fnashha/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/services"
+to = "/services/index.html"
+
+[[services.production.rewrites]]
+from = "/how-it-works"
+to = "/how-it-works/index.html"
+
+[[services.production.rewrites]]
+from = "/faq"
+to = "/faq/index.html"
+
+[[services.production.rewrites]]
+from = "/contact"
+to = "/contact/index.html"
+
+[[services.production.rewrites]]
+from = "/terms"
+to = "/terms/index.html"
+
+[[services.production.rewrites]]
+from = "/privacy"
+to = "/privacy/index.html"
+
+[[services.production.rewrites]]
+from = "/refund-policy"
+to = "/refund-policy/index.html"
+
+[[services.production.rewrites]]
+from = "/offers"
+to = "/offers/index.html"
+
+# Keep SPA fallback for known application route families only. Do not add a
+# blanket /* rewrite: an unavailable /services/<service>/<area> must remain a
+# static miss and return HTTP 404 instead of becoming a soft SPA 200.
+[[services.production.rewrites]]
+from = "/login"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/register"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/register/*"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/qr"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/r/*"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/customer/*"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/technician/*"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/admin/*"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/invoice/*"
+to = "/index.html"
+
+[[services.production.rewrites]]
+from = "/founder/*"
+to = "/index.html"
+
+[services.env]
+PORT = "3000"
+BASE_PATH = "/"
+API_PORT = "8080"

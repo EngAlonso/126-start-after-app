@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
+    <title>فنشها | خدمات الصيانة والتشطيب في مصر</title>
+    <meta name="description" content="فنشها منصة تربط العملاء بالفنيين لطلب خدمات الصيانة المنزلية والتشطيب ومتابعة الطلبات." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://fnashha.com/" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/api/pwa-manifest.json" />
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#f5c518" />
+    <meta name="msapplication-TileColor" content="#f5c518" />
+    <meta name="msapplication-TileImage" content="/assets/icon-144.png?v=3" />
+
+    <!-- Apple PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="فنشها" />
+    <link rel="apple-touch-icon" href="/assets/icon-180.png?v=3" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/assets/icon-152.png?v=3" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/assets/icon-167.png?v=3" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icon-180.png?v=3" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/icon-48.png?v=3" />
+    <link rel="shortcut icon" href="/favicon.ico?v=3" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="فنشها | خدمات الصيانة والتشطيب في مصر" />
+    <meta property="og:description" content="فنشها منصة تربط العملاء بالفنيين لطلب خدمات الصيانة المنزلية والتشطيب ومتابعة الطلبات." />
+    <meta property="og:url" content="https://fnashha.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://fnashha.com/opengraph.jpg" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="فنشها | خدمات الصيانة والتشطيب في مصر" />
+    <meta name="twitter:description" content="فنشها منصة تربط العملاء بالفنيين لطلب خدمات الصيانة المنزلية والتشطيب ومتابعة الطلبات." />
+    <meta name="twitter:image" content="https://fnashha.com/opengraph.jpg" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"فنشها","url":"https://fnashha.com/","logo":"https://fnashha.com/opengraph.jpg"}</script>
+    <script>
+      (function () {
+        var path = window.location.pathname.replace(/\/+$/, "") || "/";
+        var publicPaths = ["/", "/services", "/how-it-works", "/faq", "/contact", "/terms", "/privacy", "/refund-policy", "/offers"];
+        var isDynamicServiceLocation = /^\/services\/[^/]+\/[^/]+$/.test(path);
+        if (publicPaths.indexOf(path) === -1 && !isDynamicServiceLocation) {
+          var robots = document.querySelector('meta[name="robots"]');
+          if (robots) robots.setAttribute("content", "noindex, nofollow");
+        }
+      })();
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

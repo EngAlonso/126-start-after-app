@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Fnashha</string>
+    <string name="title_activity_main">Fnashha</string>
+    <string name="package_name">com.fnashha.app</string>
+    <string name="custom_url_scheme">com.fnashha.app</string>
+</resources>

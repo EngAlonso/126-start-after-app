@@ -1,0 +1,1 @@
+- [Web refresh coordination](web-refresh-coordination.md) — browser tabs share one rotated refresh token, so refresh must be coordinated across contexts.

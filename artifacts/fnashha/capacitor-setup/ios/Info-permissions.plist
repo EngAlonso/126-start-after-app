@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  FNASHHA — iOS Permission Keys
+  ================================
+  After running `npx cap add ios`, merge these <key>/<string> pairs into:
+    ios/App/App/Info.plist
+
+  Apple requires all permission usage description strings.
+  Submitting without them causes App Store rejection.
+-->
+<plist version="1.0">
+<dict>
+
+    <!-- Camera -->
+    <key>NSCameraUsageDescription</key>
+    <string>تحتاج فنشها إلى الكاميرا لتصوير الأعطال والخدمات المطلوبة</string>
+
+    <!-- Microphone -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>تحتاج فنشها إلى الميكروفون لإرسال رسائل صوتية في المحادثات</string>
+
+    <!-- Photo Library (read) -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>تحتاج فنشها إلى مكتبة الصور لرفع صور الطلبات والملف الشخصي</string>
+
+    <!-- Photo Library (add/save) -->
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>تحتاج فنشها إلى حفظ الصور في مكتبتك</string>
+
+    <!-- Face ID (if biometric auth is added later) -->
+    <!-- <key>NSFaceIDUsageDescription</key> -->
+    <!-- <string>تحتاج فنشها إلى Face ID لتسجيل الدخول بأمان</string> -->
+
+    <!-- Background modes — uncomment if push notifications are added -->
+    <!-- <key>UIBackgroundModes</key> -->
+    <!-- <array><string>remote-notification</string></array> -->
+
+    <!-- Safe area / status bar -->
+    <key>UIStatusBarStyle</key>
+    <string>UIStatusBarStyleDefault</string>
+    <key>UIViewControllerBasedStatusBarAppearance</key>
+    <true/>
+
+    <!-- RTL support -->
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+
+    <!-- Supported orientations: portrait only (matches PWA manifest) -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+
+</dict>
+</plist>

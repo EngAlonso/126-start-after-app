@@ -1,0 +1,1 @@
+- [Expo referral links](expo-referral-links.md) — native URL declarations require matching production association files before HTTPS links can open the installed app.

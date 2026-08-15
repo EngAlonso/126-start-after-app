@@ -1,0 +1,10 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appID": "__APPLE_TEAM_ID__.com.fnashha.app",
+        "paths": ["/r/*"]
+      }
+    ]
+  }
+}

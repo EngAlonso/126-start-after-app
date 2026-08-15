@@ -1,0 +1,9 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "InbLh9OmHPsKCl2MpZdWB"
+uri = "file://previews/rating-notification-icon-preview.svg"
+type = "image"
+title = "Rating Received notification icon preview"
+description = "Original outlined golden-star rating icon preview. This is not yet implemented in the Expo app."

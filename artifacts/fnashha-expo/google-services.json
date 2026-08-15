@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1033970707436",
+    "project_id": "fnashha-00000",
+    "storage_bucket": "fnashha-00000.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1033970707436:android:4c38dee5b6adfd2faf2ec9",
+        "android_client_info": {
+          "package_name": "com.fnashha.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNOS4MVJ7Hfp2vVaFC_ymRrXyOhSmsMwM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

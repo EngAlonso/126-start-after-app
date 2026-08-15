@@ -1,0 +1,123 @@
+modules = ["nodejs-20", "web", "python-base-3.13", "postgresql-16"]
+
+[deployment]
+router = "application"
+deploymentTarget = "autoscale"
+
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "artifacts/api-server: API Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "artifacts/fnashha: web"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "artifacts/mockup-sandbox: Component Preview Server"
+
+[[workflows.workflow]]
+name = "artifacts/api-server: API Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=8080 pnpm --filter @workspace/api-server run dev"
+waitForPort = 8080
+
+[[workflows.workflow]]
+name = "artifacts/fnashha: web"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/fnashha run dev"
+waitForPort = 3000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow]]
+name = "artifacts/mockup-sandbox: Component Preview Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/mockup-sandbox run dev"
+waitForPort = 8081
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[agent]
+stack = "PNPM_WORKSPACE"
+expertMode = true
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000
+
+[[ports]]
+localPort = 3000
+externalPort = 4200
+
+[[ports]]
+localPort = 8080
+externalPort = 80
+
+[[ports]]
+localPort = 8081
+externalPort = 8081
+
+[[ports]]
+localPort = 8082
+externalPort = 3002
+
+[[ports]]
+localPort = 8083
+externalPort = 3001
+
+[[ports]]
+localPort = 8084
+externalPort = 3003
+
+[[ports]]
+localPort = 24420
+externalPort = 3000
+
+[nix]
+channel = "stable-25_05"
+
+[userenv]
+
+[userenv.development]
+PUBLIC_APP_URL = "https://6f80c207-524b-410f-bd2b-f618b58a1411-00-1qvdftkuz9rin.picard.replit.dev"
+
+[userenv.shared]
+FOUNDER_PHONE = "01200229946"
+FOUNDER_PASSWORD = "Alonso01200"
+FIREBASE_WEB_VAPID_KEY = "BOwMyemYZw1aWGz1GN0nD-dK5yV0JaKxUevEODxIGhG7rqC-vRXwkeJBs7K5EHzOmzxMKULFQP1ctuJ9g18jJko"
+FIREBASE_WEB_MESSAGING_SENDER_ID = "1033970707436"
+FIREBASE_WEB_APP_ID = "1:1033970707436:web:faf9b2e0a455b0cbaf2ec9"
+FIREBASE_WEB_API_KEY = "AIzaSyAAkMjapCbCARrotROQrYLGqu7_vhXZEJ4"
+FIREBASE_VAPID_KEY = "BOwMyemYZw1aWGz1GN0nD-dK5yV0JaKxUevEODxIGhG7rqC-vRXwkeJBs7K5EHzOmzxMKULFQP1ctuJ9g18jJko"
+FIREBASE_SERVICE_ACCOUNT = '{   "type": "service_account",   "project_id": "fnashha-00000",   "private_key_id": "2f1a986e131e1e381b850f2d97ed0b7f606b56a1",   "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDjMgJOl9m3TIDH\nEN2lFBZnGos/Ee2GatJrOFd2eJz5GHuMmMklDlNNchX/ssHLDI7YxuEhgSPjUXWJ\nkocPzowNhfsDvD5665YAAYWbZBwgqt3HvCesrQOF7arWayZK5QDS4FhNvPK+/Uqa\nDYnZPW6yfzlcoL/u/OWANsmIJ1GK+8eJVGmmlJPhCsKHyICZ02yjSLSwwmbLE+fC\n7KbEARm5/vTmanAFPxpjBbLD2b2L1f+j0OzFOKxqmtppI+zJ/f1aqbtqG5KuAcse\n9rMSmbVGps2743iLOF2Ap4Nw4ZhrrpJJL33xGu22Be+vwZJFz/QL16arO/NLYmYf\npPsVYEenAgMBAAECggEAZoSn5tf9jYkvaOQy560PSNoA8GZCFI/6QBiN2u8lAf/q\nrDA7P4Xd0AoFZDrA2MNjZ+0iJHC2BXq5+2iLmnXc27NT58UXOnc42erV458CVDlV\n1y2Ph4sQlmv+1T9Haa85Nm62WenDbaw08Bvg0o62d0QSWbpNsWUbmEXgnZgEYx5N\nGmt6XIpDDomdeY+q1BdBbYQyixTRo/vTS4V6QHRtr1fRFr55oFvd71pKLrVTg65K\nDhhzAvWJQVFo1Naa0s28QEB8iHETHw15EAl9CBY7iR07Z9ZxmBl8i9t9fG/8muZa\nBUOewHwp6nagmBryof55wMsySfkzDHYuxSNcmvXi5QKBgQD3ytTH4N/5iLJ1i8Zy\nufnvII6kIkyduTgWijKlX2g//TbJA9iSzpXLF6/WITapxhzwQNgAmo6bZxMBPS+w\nAFwot0WzU6OfCG9knr64Mjx9uHPy7M20AM1L6incZofogXbPedZHl5xzTlu1cXjv\n2G3hO+51ZtCdCK0cP7EnR2bg6wKBgQDquIZVh0AuvEoNPClaKeGAe1vgAeGGUdlm\nTvaYeFme8FdWHKJMyoJRRTsBEScQWle449PBDGilX5jz4TitBKGeOO7bQnylv5jv\naSF+XvP1kRv7y23LPHxVTUWwN5cnVKOkL5ek66vywgBg3ywbzr1Y9ZXT6pbCO+2P\nNBcLhUVlNQKBgDJbx2ijvAETlekrsfYI89F0VWjoC5gWV17FUUuomyA+Ds9Fd9NG\nJs0ykCq9b0WLnL/6/asJvie5B/S9gZ6MRC6GKKUsP1mHtlPFq0717rNCNFZPZ/LI\nIvDlswI22DIZdZLu2OyN1F7esuaqHADqhFI9AtZbQdRYOg4+p3srGK5nAoGBAOM7\nXKF0XIhiNHZ3pbjqDqtpwVott/1nQ8Yt78FP0cNy/boZ4m3hJyQyl5rC1kSYkZAm\nz5t2veBLmjGP+mRVtXkNuP9/cFiuEgrEhm5m0lsL7kFngZVdqyiRtEOSrbyfzgRn\nJrG8jixn8CHYLEWHcfurVS9hTi4gAi2+ygiXLsV5AoGAbTDIfR+oO/j+95INebdH\nKpnRceRbwBZ9VnUVz4JJ/opwi9CYnsR9vFHhJ0QDlGm8sqUx+/xvRyoWTDpDuqjZ\nexrIZPfQjcUtuCVbbni7T2fUzfADGtDPA9PmyCh2I8JxeID3b+v6Ve8xKOHd/WN/\nrOgR6OJ7rtJQ8LlTLTMVIRA=\n-----END PRIVATE KEY-----\n",   "client_email": "firebase-adminsdk-fbsvc@fnashha-00000.iam.gserviceaccount.com",   "client_id": "111170938101253645468",   "auth_uri": "https://accounts.google.com/o/oauth2/auth",   "token_uri": "https://oauth2.googleapis.com/token",   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40fnashha-00000.iam.gserviceaccount.com",   "universe_domain": "googleapis.com" }'
+FIREBASE_PROJECT_ID = "fnashha-00000"
+CLOUDINARY_CLOUD_NAME = "du2uf9n9k"
+CLOUDINARY_API_SECRET = "D0PGCQhrlQ36wGeZ28EBIkSEy3Y"
+CLOUDINARY_API_KEY = "364159467491764"

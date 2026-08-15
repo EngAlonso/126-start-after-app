@@ -1,0 +1,2589 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Fnashha Home Services Marketplace API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: auth
+  - name: users
+  - name: services
+  - name: governorates
+  - name: areas
+  - name: requests
+  - name: offers
+  - name: messages
+  - name: ratings
+  - name: points
+  - name: commissions
+  - name: support
+  - name: notifications
+  - name: cms
+  - name: admin
+  - name: analytics
+  - name: seo
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ─── AUTH ───────────────────────────────────────────────────────────────────
+  /auth/register/customer:
+    post:
+      operationId: registerCustomer
+      tags: [auth]
+      summary: Register a new customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomerRegistration"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+
+  /auth/register/technician:
+    post:
+      operationId: registerTechnician
+      tags: [auth]
+      summary: Register a new technician
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TechnicianRegistration"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogoutInput"
+      responses:
+        "200":
+          description: OK
+
+  /auth/logout-all:
+    post:
+      operationId: logoutAll
+      tags: [auth]
+      summary: Logout from all devices
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      tags: [auth]
+      summary: Exchange a refresh token for a new access + refresh token pair
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPairResponse"
+        "400":
+          description: Missing refresh token
+        "401":
+          description: Invalid, expired, revoked, or reused refresh token
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+
+  # ─── USERS ──────────────────────────────────────────────────────────────────
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List users (admin)
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [customer, technician, admin, super_admin]
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserList"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{id}/suspend:
+    post:
+      operationId: suspendUser
+      tags: [users]
+      summary: Suspend a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SuspendInput"
+      responses:
+        "200":
+          description: OK
+
+  /users/{id}/activate:
+    post:
+      operationId: activateUser
+      tags: [users]
+      summary: Activate a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+
+  # ─── TECHNICIANS ─────────────────────────────────────────────────────────────
+  /technicians/pending:
+    get:
+      operationId: listPendingTechnicians
+      tags: [users]
+      summary: List pending technician approvals
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TechnicianProfile"
+
+  /technicians/{id}/approve:
+    post:
+      operationId: approveTechnician
+      tags: [users]
+      summary: Approve a technician
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+
+  /technicians/{id}/reject:
+    post:
+      operationId: rejectTechnician
+      tags: [users]
+      summary: Reject a technician
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RejectInput"
+      responses:
+        "200":
+          description: OK
+
+  /technicians/{id}/profile:
+    get:
+      operationId: getTechnicianProfile
+      tags: [users]
+      summary: Get technician profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TechnicianProfile"
+
+  # ─── SERVICES ────────────────────────────────────────────────────────────────
+  /services:
+    get:
+      operationId: listServices
+      tags: [services]
+      summary: List services
+      parameters:
+        - name: active
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+    post:
+      operationId: createService
+      tags: [services]
+      summary: Create service (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+
+  /services/{id}:
+    get:
+      operationId: getService
+      tags: [services]
+      summary: Get service by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+
+    patch:
+      operationId: updateService
+      tags: [services]
+      summary: Update service (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+
+    delete:
+      operationId: deleteService
+      tags: [services]
+      summary: Delete service (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── PUBLIC SEO LANDING PAGES ───────────────────────────────────────────────
+  /seo/landing-pages:
+    get:
+      operationId: listSeoLandingPages
+      tags: [seo]
+      summary: List eligible public service/location landing pages
+      responses:
+        "200":
+          description: Eligible combinations derived from live availability
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SeoLandingPage"
+
+  /seo/landing-pages/{serviceSlug}/{locationSlug}:
+    get:
+      operationId: getSeoLandingPage
+      tags: [seo]
+      summary: Get one eligible public service/location landing page
+      parameters:
+        - name: serviceSlug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: locationSlug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Eligible landing page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SeoLandingPage"
+        "404":
+          description: Combination is not currently eligible
+
+  /admin/seo/landing-pages:
+    get:
+      operationId: listAdminSeoLandingPages
+      tags: [seo]
+      summary: List eligible SEO landing pages for authorized administrators
+      responses:
+        "200":
+          description: Eligible combinations derived from live availability
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SeoLandingPage"
+        "401":
+          description: Authentication required
+        "403":
+          description: SEO pages permission required
+
+  # ─── GOVERNORATES ────────────────────────────────────────────────────────────
+  /governorates:
+    get:
+      operationId: listGovernorates
+      tags: [governorates]
+      summary: List governorates
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Governorate"
+    post:
+      operationId: createGovernorate
+      tags: [governorates]
+      summary: Create governorate (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernorateInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Governorate"
+
+  /governorates/{id}:
+    patch:
+      operationId: updateGovernorate
+      tags: [governorates]
+      summary: Update governorate (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GovernorateUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Governorate"
+    delete:
+      operationId: deleteGovernorate
+      tags: [governorates]
+      summary: Delete governorate (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── AREAS ───────────────────────────────────────────────────────────────────
+  /areas:
+    get:
+      operationId: listAreas
+      tags: [areas]
+      summary: List areas
+      parameters:
+        - name: governorateId
+          in: query
+          schema:
+            type: integer
+        - name: active
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Area"
+    post:
+      operationId: createArea
+      tags: [areas]
+      summary: Create area (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AreaInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Area"
+
+  /areas/{id}:
+    patch:
+      operationId: updateArea
+      tags: [areas]
+      summary: Update area (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AreaUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Area"
+    delete:
+      operationId: deleteArea
+      tags: [areas]
+      summary: Delete area (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── REQUESTS ────────────────────────────────────────────────────────────────
+  /requests:
+    get:
+      operationId: listRequests
+      tags: [requests]
+      summary: List service requests
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: serviceId
+          in: query
+          schema:
+            type: integer
+        - name: governorateId
+          in: query
+          schema:
+            type: integer
+        - name: areaId
+          in: query
+          schema:
+            type: integer
+        - name: customerId
+          in: query
+          schema:
+            type: integer
+        - name: technicianId
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RequestList"
+    post:
+      operationId: createRequest
+      tags: [requests]
+      summary: Create a service request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceRequest"
+
+  /requests/{id}:
+    get:
+      operationId: getRequest
+      tags: [requests]
+      summary: Get request by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceRequest"
+    patch:
+      operationId: updateRequest
+      tags: [requests]
+      summary: Update request status (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceRequest"
+
+  /requests/{id}/cancel:
+    post:
+      operationId: cancelRequest
+      tags: [requests]
+      summary: Cancel a request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelInput"
+      responses:
+        "200":
+          description: OK
+
+  /requests/{id}/complete:
+    post:
+      operationId: completeRequest
+      tags: [requests]
+      summary: Mark request as completed
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+
+  /requests/{id}/price-adjustment:
+    post:
+      operationId: requestPriceAdjustment
+      tags: [requests]
+      summary: Request price adjustment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PriceAdjustmentInput"
+      responses:
+        "200":
+          description: OK
+
+  /requests/{id}/price-adjustment/respond:
+    post:
+      operationId: respondPriceAdjustment
+      tags: [requests]
+      summary: Customer responds to price adjustment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PriceAdjustmentResponse"
+      responses:
+        "200":
+          description: OK
+
+  # ─── OFFERS ──────────────────────────────────────────────────────────────────
+  /requests/{requestId}/offers:
+    get:
+      operationId: listOffers
+      tags: [offers]
+      summary: List offers for a request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Offer"
+    post:
+      operationId: createOffer
+      tags: [offers]
+      summary: Submit an offer
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OfferInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+
+  /requests/{requestId}/offers/{offerId}:
+    patch:
+      operationId: updateOffer
+      tags: [offers]
+      summary: Update an offer
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OfferUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Offer"
+
+  /requests/{requestId}/offers/{offerId}/select:
+    post:
+      operationId: selectOffer
+      tags: [offers]
+      summary: Customer selects a technician offer
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+
+  # ─── MESSAGES ────────────────────────────────────────────────────────────────
+  /requests/{requestId}/messages:
+    get:
+      operationId: listMessages
+      tags: [messages]
+      summary: List messages for a request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      summary: Send a message
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+
+  # ─── RATINGS ─────────────────────────────────────────────────────────────────
+  /ratings:
+    get:
+      operationId: listRatings
+      tags: [ratings]
+      summary: List ratings
+      parameters:
+        - name: technicianId
+          in: query
+          schema:
+            type: integer
+        - name: customerId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Rating"
+    post:
+      operationId: createRating
+      tags: [ratings]
+      summary: Rate a technician
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RatingInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rating"
+
+  /ratings/{id}:
+    delete:
+      operationId: deleteRating
+      tags: [ratings]
+      summary: Delete rating (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── POINTS ──────────────────────────────────────────────────────────────────
+  /points/balance:
+    get:
+      operationId: getPointsBalance
+      tags: [points]
+      summary: Get current user points balance
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PointsBalance"
+
+  /points/transactions:
+    get:
+      operationId: listPointTransactions
+      tags: [points]
+      summary: List point transactions
+      parameters:
+        - name: technicianId
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PointTransaction"
+
+  /points/add:
+    post:
+      operationId: addPoints
+      tags: [points]
+      summary: Add points to technician (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PointsInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PointsBalance"
+
+  /points/deduct:
+    post:
+      operationId: deductPoints
+      tags: [points]
+      summary: Deduct points from technician (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PointsInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PointsBalance"
+
+  # ─── COMMISSIONS ─────────────────────────────────────────────────────────────
+  /commissions:
+    get:
+      operationId: listCommissions
+      tags: [commissions]
+      summary: List commission settings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Commission"
+    post:
+      operationId: createCommission
+      tags: [commissions]
+      summary: Create commission rule (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommissionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Commission"
+
+  /commissions/{id}:
+    patch:
+      operationId: updateCommission
+      tags: [commissions]
+      summary: Update commission rule (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommissionUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Commission"
+
+  # ─── SUPPORT ─────────────────────────────────────────────────────────────────
+  /support/tickets:
+    get:
+      operationId: listTickets
+      tags: [support]
+      summary: List support tickets
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ticket"
+    post:
+      operationId: createTicket
+      tags: [support]
+      summary: Create support ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TicketInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+
+  /support/tickets/{id}:
+    get:
+      operationId: getTicket
+      tags: [support]
+      summary: Get ticket by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+    patch:
+      operationId: updateTicket
+      tags: [support]
+      summary: Update ticket (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TicketUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+
+  /support/tickets/{id}/reply:
+    post:
+      operationId: replyTicket
+      tags: [support]
+      summary: Reply to a ticket
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TicketReplyInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketReply"
+
+  # ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List notifications
+      parameters:
+        - name: unread
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/read-all:
+    post:
+      operationId: markAllNotificationsRead
+      tags: [notifications]
+      summary: Mark all notifications as read
+      responses:
+        "200":
+          description: OK
+
+  /notifications/{id}/read:
+    post:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark a notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+
+  # ─── CMS ─────────────────────────────────────────────────────────────────────
+  /cms/settings:
+    get:
+      operationId: getCmsSettings
+      tags: [cms]
+      summary: Get CMS settings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CmsSettings"
+    patch:
+      operationId: updateCmsSettings
+      tags: [cms]
+      summary: Update CMS settings (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CmsSettingsUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CmsSettings"
+
+  # ─── ANALYTICS ───────────────────────────────────────────────────────────────
+  /analytics/overview:
+    get:
+      operationId: getAnalyticsOverview
+      tags: [analytics]
+      summary: Get analytics overview
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsOverview"
+
+  /analytics/financial:
+    get:
+      operationId: getFinancialAnalytics
+      tags: [analytics]
+      summary: Get financial analytics
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month, year]
+            default: month
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancialAnalytics"
+
+  /analytics/requests-chart:
+    get:
+      operationId: getRequestsChart
+      tags: [analytics]
+      summary: Get requests chart data
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month, year]
+            default: month
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChartDataPoint"
+
+  /analytics/top-technicians:
+    get:
+      operationId: getTopTechnicians
+      tags: [analytics]
+      summary: Get top technicians
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TechnicianStats"
+
+  /analytics/top-services:
+    get:
+      operationId: getTopServices
+      tags: [analytics]
+      summary: Get top services by request count
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceStats"
+
+  # ─── ADMIN ───────────────────────────────────────────────────────────────────
+  /admin/activity-logs:
+    get:
+      operationId: listActivityLogs
+      tags: [admin]
+      summary: List admin activity logs
+      parameters:
+        - name: adminId
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityLog"
+
+  /admin/staff:
+    get:
+      operationId: listAdminStaff
+      tags: [admin]
+      summary: List admin staff (super admin only)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createAdminStaff
+      tags: [admin]
+      summary: Create admin staff (super admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminStaffInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /admin/staff/{id}/permissions:
+    patch:
+      operationId: updateStaffPermissions
+      tags: [admin]
+      summary: Update staff permissions (super admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PermissionsUpdate"
+      responses:
+        "200":
+          description: OK
+
+  /admin/quick-stats:
+    get:
+      operationId: getQuickStats
+      tags: [admin]
+      summary: Get dashboard quick stats
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuickStats"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    # ─── AUTH ──────────────────────────────────────────────────────────────────
+    CustomerRegistration:
+      type: object
+      required: [fullName, mobile, password]
+      properties:
+        fullName:
+          type: string
+        mobile:
+          type: string
+        password:
+          type: string
+
+    TechnicianRegistration:
+      type: object
+      required: [fullName, mobile, password, nationalId, serviceIds, governorateIds, areaIds, primaryAreaId]
+      properties:
+        fullName:
+          type: string
+        mobile:
+          type: string
+        password:
+          type: string
+        nationalId:
+          type: string
+        personalPhoto:
+          type: ["string", "null"]
+        nationalIdFront:
+          type: ["string", "null"]
+        nationalIdBack:
+          type: ["string", "null"]
+        serviceIds:
+          type: array
+          items:
+            type: integer
+        governorateIds:
+          type: array
+          items:
+            type: integer
+        areaIds:
+          type: array
+          items:
+            type: integer
+        primaryAreaId:
+          type: integer
+        acceptTerms:
+          type: boolean
+
+    LoginInput:
+      type: object
+      required: [mobile, password]
+      properties:
+        mobile:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [customer, technician, admin, super_admin]
+
+    AuthResponse:
+      type: object
+      required: [token, user]
+      properties:
+        token:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    TokenPairResponse:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+
+    LogoutInput:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+
+    RefreshTokenInput:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+        deviceId:
+          type: string
+
+    # ─── USER ──────────────────────────────────────────────────────────────────
+    User:
+      type: object
+      required: [id, fullName, mobile, role, status, createdAt]
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        mobile:
+          type: string
+        email:
+          type: ["string", "null"]
+        role:
+          type: string
+          enum: [customer, technician, admin, super_admin]
+        status:
+          type: string
+          enum: [active, pending, suspended, banned, rejected]
+        profileImage:
+          type: ["string", "null"]
+        jobTitle:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        technicianProfile:
+          $ref: "#/components/schemas/TechnicianProfile"
+
+    UserList:
+      type: object
+      required: [data, total, page, limit]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    UserUpdate:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        profileImage:
+          type: string
+        jobTitle:
+          type: string
+
+    SuspendInput:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+
+    TechnicianProfile:
+      type: object
+      required: [id, userId, nationalId, approvalStatus]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        nationalId:
+          type: string
+        personalPhoto:
+          type: ["string", "null"]
+        nationalIdFront:
+          type: ["string", "null"]
+        nationalIdBack:
+          type: ["string", "null"]
+        approvalStatus:
+          type: string
+          enum: [pending, approved, rejected]
+        rejectionReason:
+          type: ["string", "null"]
+        pointsBalance:
+          type: integer
+        averageRating:
+          type: number
+        reviewCount:
+          type: integer
+        completedJobs:
+          type: integer
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/Service"
+        areas:
+          type: array
+          items:
+            $ref: "#/components/schemas/Area"
+        primaryArea:
+          $ref: "#/components/schemas/Area"
+
+    RejectInput:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+
+    # ─── SERVICE ───────────────────────────────────────────────────────────────
+    Service:
+      type: object
+      required: [id, name, isActive, displayOrder]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameAr:
+          type: string
+        icon:
+          type: ["string", "null"]
+        image:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        displayOrder:
+          type: integer
+
+    SeoLandingPage:
+      type: object
+      required:
+        - serviceId
+        - serviceName
+        - serviceNameAr
+        - areaId
+        - areaName
+        - areaNameAr
+        - governorateId
+        - governorateName
+        - governorateNameAr
+        - serviceSlug
+        - locationSlug
+      properties:
+        serviceId:
+          type: integer
+        serviceName:
+          type: string
+        serviceNameAr:
+          type: string
+        serviceIcon:
+          type: ["string", "null"]
+        serviceImage:
+          type: ["string", "null"]
+        areaId:
+          type: integer
+        areaName:
+          type: string
+        areaNameAr:
+          type: string
+        governorateId:
+          type: integer
+        governorateName:
+          type: string
+        governorateNameAr:
+          type: string
+        serviceSlug:
+          type: string
+        locationSlug:
+          type: string
+
+    ServiceInput:
+      type: object
+      required: [name, nameAr]
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        icon:
+          type: string
+        image:
+          type: string
+        isActive:
+          type: boolean
+        displayOrder:
+          type: integer
+
+    ServiceUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        icon:
+          type: string
+        image:
+          type: string
+        isActive:
+          type: boolean
+        displayOrder:
+          type: integer
+
+    # ─── GOVERNORATE ───────────────────────────────────────────────────────────
+    Governorate:
+      type: object
+      required: [id, name, nameAr, isActive]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameAr:
+          type: string
+        isActive:
+          type: boolean
+
+    GovernorateInput:
+      type: object
+      required: [name, nameAr]
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        isActive:
+          type: boolean
+
+    GovernorateUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        isActive:
+          type: boolean
+
+    # ─── AREA ──────────────────────────────────────────────────────────────────
+    Area:
+      type: object
+      required: [id, name, nameAr, governorateId, isActive]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameAr:
+          type: string
+        governorateId:
+          type: integer
+        governorate:
+          $ref: "#/components/schemas/Governorate"
+        isActive:
+          type: boolean
+
+    AreaInput:
+      type: object
+      required: [name, nameAr, governorateId]
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        governorateId:
+          type: integer
+        isActive:
+          type: boolean
+
+    AreaUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        isActive:
+          type: boolean
+
+    # ─── REQUEST ───────────────────────────────────────────────────────────────
+    ServiceRequest:
+      type: object
+      required: [id, customerId, serviceId, status, fullName, mobile, governorateId, areaId, address, description, createdAt]
+      properties:
+        id:
+          type: integer
+        customerId:
+          type: integer
+        customer:
+          $ref: "#/components/schemas/User"
+        serviceId:
+          type: integer
+        service:
+          $ref: "#/components/schemas/Service"
+        selectedTechnicianId:
+          type: ["integer", "null"]
+        selectedTechnician:
+          $ref: "#/components/schemas/User"
+        status:
+          type: string
+          enum: [pending, offers_received, technician_selected, in_progress, price_change_requested, waiting_approval, completed, cancelled_by_customer, cancelled_by_technician, cancelled_by_admin, disputed]
+        fullName:
+          type: string
+        mobile:
+          type: string
+        governorateId:
+          type: integer
+        governorate:
+          $ref: "#/components/schemas/Governorate"
+        areaId:
+          type: integer
+        area:
+          $ref: "#/components/schemas/Area"
+        address:
+          type: string
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        offersCount:
+          type: integer
+        agreedPrice:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    RequestList:
+      type: object
+      required: [data, total, page, limit]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceRequest"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    RequestInput:
+      type: object
+      required: [serviceId, fullName, mobile, governorateId, areaId, address, description]
+      properties:
+        serviceId:
+          type: integer
+        fullName:
+          type: string
+        mobile:
+          type: string
+        governorateId:
+          type: integer
+        areaId:
+          type: integer
+        address:
+          type: string
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+
+    RequestUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+        adminNote:
+          type: string
+
+    CancelInput:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+
+    PriceAdjustmentInput:
+      type: object
+      required: [newPrice, newDescription]
+      properties:
+        newPrice:
+          type: number
+        newDescription:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+
+    PriceAdjustmentResponse:
+      type: object
+      required: [approved]
+      properties:
+        approved:
+          type: boolean
+
+    # ─── OFFER ─────────────────────────────────────────────────────────────────
+    Offer:
+      type: object
+      required: [id, requestId, technicianId, price, status, createdAt]
+      properties:
+        id:
+          type: integer
+        requestId:
+          type: integer
+        technicianId:
+          type: integer
+        technician:
+          $ref: "#/components/schemas/User"
+        price:
+          type: number
+        notes:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, selected, rejected, withdrawn]
+        createdAt:
+          type: string
+
+    OfferInput:
+      type: object
+      required: [price]
+      properties:
+        price:
+          type: number
+        notes:
+          type: string
+
+    OfferUpdate:
+      type: object
+      properties:
+        price:
+          type: number
+        notes:
+          type: string
+
+    # ─── MESSAGE ───────────────────────────────────────────────────────────────
+    Message:
+      type: object
+      required: [id, requestId, senderId, content, type, createdAt]
+      properties:
+        id:
+          type: integer
+        requestId:
+          type: integer
+        senderId:
+          type: integer
+        sender:
+          $ref: "#/components/schemas/User"
+        content:
+          type: string
+        type:
+          type: string
+          enum: [text, image]
+        imageUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    MessageInput:
+      type: object
+      required: [content, type]
+      properties:
+        content:
+          type: string
+        type:
+          type: string
+          enum: [text, image]
+        imageUrl:
+          type: string
+
+    # ─── RATING ────────────────────────────────────────────────────────────────
+    Rating:
+      type: object
+      required: [id, requestId, customerId, technicianId, stars, createdAt]
+      properties:
+        id:
+          type: integer
+        requestId:
+          type: integer
+        customerId:
+          type: integer
+        customer:
+          $ref: "#/components/schemas/User"
+        technicianId:
+          type: integer
+        technician:
+          $ref: "#/components/schemas/User"
+        stars:
+          type: integer
+          minimum: 1
+          maximum: 5
+        review:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    RatingInput:
+      type: object
+      required: [requestId, technicianId, stars]
+      properties:
+        requestId:
+          type: integer
+        technicianId:
+          type: integer
+        stars:
+          type: integer
+          minimum: 1
+          maximum: 5
+        review:
+          type: string
+
+    # ─── POINTS ────────────────────────────────────────────────────────────────
+    PointsBalance:
+      type: object
+      required: [technicianId, balance]
+      properties:
+        technicianId:
+          type: integer
+        balance:
+          type: integer
+
+    PointTransaction:
+      type: object
+      required: [id, technicianId, amount, type, description, balanceAfter, createdAt]
+      properties:
+        id:
+          type: integer
+        technicianId:
+          type: integer
+        amount:
+          type: integer
+        type:
+          type: string
+          enum: [credit, debit, commission]
+        description:
+          type: string
+        balanceAfter:
+          type: integer
+        requestId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    PointsInput:
+      type: object
+      required: [technicianId, amount, description]
+      properties:
+        technicianId:
+          type: integer
+        amount:
+          type: integer
+        description:
+          type: string
+
+    # ─── COMMISSION ────────────────────────────────────────────────────────────
+    Commission:
+      type: object
+      required: [id, type, value, createdAt]
+      properties:
+        id:
+          type: integer
+        serviceId:
+          type: ["integer", "null"]
+        service:
+          $ref: "#/components/schemas/Service"
+        areaId:
+          type: ["integer", "null"]
+        area:
+          $ref: "#/components/schemas/Area"
+        type:
+          type: string
+          enum: [fixed, percentage]
+        value:
+          type: number
+        createdAt:
+          type: string
+
+    CommissionInput:
+      type: object
+      required: [type, value]
+      properties:
+        serviceId:
+          type: integer
+        areaId:
+          type: integer
+        type:
+          type: string
+          enum: [fixed, percentage]
+        value:
+          type: number
+
+    CommissionUpdate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [fixed, percentage]
+        value:
+          type: number
+
+    # ─── SUPPORT ───────────────────────────────────────────────────────────────
+    Ticket:
+      type: object
+      required: [id, userId, subject, status, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        user:
+          $ref: "#/components/schemas/User"
+        subject:
+          type: string
+        message:
+          type: string
+        status:
+          type: string
+          enum: [open, in_progress, resolved, closed]
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+        replies:
+          type: array
+          items:
+            $ref: "#/components/schemas/TicketReply"
+        createdAt:
+          type: string
+
+    TicketInput:
+      type: object
+      required: [subject, message]
+      properties:
+        subject:
+          type: string
+        message:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+
+    TicketUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [open, in_progress, resolved, closed]
+        priority:
+          type: string
+
+    TicketReply:
+      type: object
+      required: [id, ticketId, senderId, message, createdAt]
+      properties:
+        id:
+          type: integer
+        ticketId:
+          type: integer
+        senderId:
+          type: integer
+        sender:
+          $ref: "#/components/schemas/User"
+        message:
+          type: string
+        createdAt:
+          type: string
+
+    TicketReplyInput:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    # ─── NOTIFICATION ──────────────────────────────────────────────────────────
+    Notification:
+      type: object
+      required: [id, userId, title, body, type, isRead, createdAt]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+        type:
+          type: string
+          enum: [new_request, new_offer, technician_selected, new_message, price_adjustment, status_change, support_reply, announcement]
+        isRead:
+          type: boolean
+        relatedId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    # ─── CMS ───────────────────────────────────────────────────────────────────
+    CmsSettings:
+      type: object
+      properties:
+        siteName:
+          type: string
+        siteNameAr:
+          type: string
+        logoUrl:
+          type: ["string", "null"]
+        faviconUrl:
+          type: ["string", "null"]
+        heroTitle:
+          type: string
+        heroTitleAr:
+          type: string
+        heroSubtitle:
+          type: string
+        heroSubtitleAr:
+          type: string
+        aboutUs:
+          type: string
+        aboutUsAr:
+          type: string
+        termsConditions:
+          type: string
+        termsConditionsAr:
+          type: string
+        privacyPolicy:
+          type: string
+        privacyPolicyAr:
+          type: string
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+        contactAddress:
+          type: string
+        facebookUrl:
+          type: ["string", "null"]
+        twitterUrl:
+          type: ["string", "null"]
+        instagramUrl:
+          type: ["string", "null"]
+        whatsappNumber:
+          type: ["string", "null"]
+
+    CmsSettingsUpdate:
+      type: object
+      properties:
+        siteName:
+          type: string
+        siteNameAr:
+          type: string
+        heroTitle:
+          type: string
+        heroTitleAr:
+          type: string
+        heroSubtitle:
+          type: string
+        heroSubtitleAr:
+          type: string
+        aboutUs:
+          type: string
+        aboutUsAr:
+          type: string
+        termsConditions:
+          type: string
+        termsConditionsAr:
+          type: string
+        privacyPolicy:
+          type: string
+        privacyPolicyAr:
+          type: string
+        contactEmail:
+          type: string
+        contactPhone:
+          type: string
+        contactAddress:
+          type: string
+        facebookUrl:
+          type: string
+        twitterUrl:
+          type: string
+        instagramUrl:
+          type: string
+        whatsappNumber:
+          type: string
+
+    # ─── ANALYTICS ─────────────────────────────────────────────────────────────
+    AnalyticsOverview:
+      type: object
+      required: [totalCustomers, totalTechnicians, pendingApprovals, activeTechnicians, suspendedTechnicians, totalRequests, openRequests, completedRequests, cancelledRequests, disputedRequests]
+      properties:
+        totalCustomers:
+          type: integer
+        totalTechnicians:
+          type: integer
+        pendingApprovals:
+          type: integer
+        activeTechnicians:
+          type: integer
+        suspendedTechnicians:
+          type: integer
+        totalRequests:
+          type: integer
+        openRequests:
+          type: integer
+        completedRequests:
+          type: integer
+        cancelledRequests:
+          type: integer
+        disputedRequests:
+          type: integer
+
+    FinancialAnalytics:
+      type: object
+      required: [totalCommission, totalPointsAdded, totalPointsDeducted, revenue]
+      properties:
+        totalCommission:
+          type: number
+        totalPointsAdded:
+          type: integer
+        totalPointsDeducted:
+          type: integer
+        revenue:
+          type: number
+        revenueByPeriod:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChartDataPoint"
+
+    ChartDataPoint:
+      type: object
+      required: [label, value]
+      properties:
+        label:
+          type: string
+        value:
+          type: number
+
+    TechnicianStats:
+      type: object
+      required: [id, fullName, completedJobs, averageRating, totalEarned]
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        profileImage:
+          type: ["string", "null"]
+        completedJobs:
+          type: integer
+        averageRating:
+          type: number
+        totalEarned:
+          type: number
+
+    ServiceStats:
+      type: object
+      required: [id, nameAr, requestCount]
+      properties:
+        id:
+          type: integer
+        nameAr:
+          type: string
+        requestCount:
+          type: integer
+        completedCount:
+          type: integer
+
+    # ─── ADMIN ─────────────────────────────────────────────────────────────────
+    ActivityLog:
+      type: object
+      required: [id, adminId, action, createdAt]
+      properties:
+        id:
+          type: integer
+        adminId:
+          type: integer
+        admin:
+          $ref: "#/components/schemas/User"
+        action:
+          type: string
+        details:
+          type: string
+        ipAddress:
+          type: string
+        createdAt:
+          type: string
+
+    AdminStaffInput:
+      type: object
+      required: [fullName, mobile, email, password, jobTitle]
+      properties:
+        fullName:
+          type: string
+        mobile:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        jobTitle:
+          type: string
+
+    PermissionsUpdate:
+      type: object
+      properties:
+        permissions:
+          type: array
+          items:
+            type: string
+
+    QuickStats:
+      type: object
+      required: [pendingApprovals, newComplaints, openRequests, disputedRequests, lowBalanceTechnicians, staleRequests]
+      properties:
+        pendingApprovals:
+          type: integer
+        newComplaints:
+          type: integer
+        openRequests:
+          type: integer
+        disputedRequests:
+          type: integer
+        lowBalanceTechnicians:
+          type: integer
+        staleRequests:
+          type: integer

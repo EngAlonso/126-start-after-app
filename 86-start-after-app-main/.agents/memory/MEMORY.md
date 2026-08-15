@@ -1,0 +1,1 @@
+- [Expo locale direction](expo-locale-direction.md) — keep app-selected locale as the only direction source; native TextInput alignment has a narrower type.

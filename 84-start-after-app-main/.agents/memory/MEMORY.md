@@ -1,0 +1,1 @@
+- [Android release builds](android-release-builds.md) — native APK builds require an Android SDK provisioned in the environment; Gradle alone is insufficient.

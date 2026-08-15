@@ -1,0 +1,105 @@
+{
+  "expo": {
+    "name": "فنشها",
+    "slug": "fnashha-expo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "fnashha-expo",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "extra": {
+      "eas": {
+        "projectId": "ccd0dc14-5901-41cb-9668-9949399389cc"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ccd0dc14-5901-41cb-9668-9949399389cc"
+    },
+    "runtimeVersion": "1.0.0",
+    "splash": {
+      "image": "./assets/images/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F9FB"
+    },
+    "ios": {
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "bundleIdentifier": "com.fnashha.app",
+      "icon": "./assets/images/icon.png",
+      "supportsTablet": false,
+      "associatedDomains": [
+        "applinks:fnashha.com"
+      ],
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true,
+        "NSMicrophoneUsageDescription": "نحتاج إلى الميكروفون لتسجيل وصف صوتي للمشكلة",
+        "NSPhotoLibraryUsageDescription": "نحتاج إلى الوصول إلى الصور لإرفاق صور المشكلة",
+        "NSCameraUsageDescription": "نحتاج إلى الكاميرا لالتقاط صور المشكلة",
+        "UIBackgroundModes": ["remote-notification"]
+      }
+    },
+    "android": {
+      "googleServicesFile": "./google-services.json",
+      "package": "com.fnashha.app",
+      "icon": "./assets/images/icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#FFC000"
+      },
+      "softwareKeyboardLayoutMode": "pan",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ],
+          "data": [
+            {
+              "scheme": "https",
+              "host": "fnashha.com",
+              "pathPrefix": "/r/"
+            }
+          ]
+        }
+      ],
+      "permissions": [
+        "RECORD_AUDIO",
+        "READ_MEDIA_IMAGES",
+        "READ_MEDIA_VIDEO",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "POST_NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/images/icon.png",
+      "lang": "ar"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon-android.png",
+          "color": "#E9B73A",
+          "sounds": [],
+          "enableBackgroundRemoteNotifications": true,
+          "defaultChannel": "fnashha_default"
+        }
+      ],
+      [
+        "expo-router",
+        {}
+      ],
+      "expo-font",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

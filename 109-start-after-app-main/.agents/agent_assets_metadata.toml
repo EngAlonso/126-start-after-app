@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "kzeees0vq0-k1wdA50iFl"
+uri = "file://artifacts/fnashha-expo/assets/images/another-technician-selected.png"
+type = "image"
+title = "Another Technician Selected notification icon"
+description = "Original transparent artwork used only for the in-app تم اختيار فني آخر status_change notification."
+
+[[outputs]]
+id = "1j5urf1eywR4sIe1WiTn2"
+uri = "file://artifacts/fnashha-expo/assets/images/price-adjustment-requested.png"
+type = "image"
+title = "Price Adjustment Requested notification icon"
+description = "Original transparent artwork used for the in-app طلب تعديل السعر notification."

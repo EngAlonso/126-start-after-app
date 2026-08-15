@@ -1,0 +1,1 @@
+- [QR viewport verification](qr-viewport-verification.md) — verify QR layout with post-overlay DOM dimensions because startup and install overlays can obscure screenshot captures.

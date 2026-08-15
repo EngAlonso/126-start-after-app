@@ -1,0 +1,1 @@
+- [Expo build validation](expo-build-validation.md) — the static Expo build needs the fixed Metro port free and may fail at manifests in bare workflows.

@@ -1,0 +1,79 @@
+uploads = []
+
+[[generated]]
+id = "brk-wMnq5cW-J3RlbJMDK"
+uri = "file://artifacts/fnashha/public/assets/bg-qr.png"
+type = "image"
+title = "qr page workshop background"
+
+[[generated]]
+id = "zGqj6X_3CnYoeR0cZdExP"
+uri = "file://artifacts/fnashha/public/assets/bg-contact.png"
+type = "image"
+title = "contact page office background"
+
+[[generated]]
+id = "lQ28jMveS7UN80sKNxtUw"
+uri = "file://artifacts/fnashha/public/assets/bg-how-it-works.png"
+type = "image"
+title = "how it works blueprint background"
+
+[[generated]]
+id = "8A1bWxrpbptyLsuz12-29"
+uri = "file://artifacts/fnashha/public/assets/bg-faq.png"
+type = "image"
+title = "faq page minimal book background"
+
+[[generated]]
+id = "eRAn-7lt-HD90NmGFIjcO"
+uri = "file://artifacts/fnashha/public/assets/bg-terms.png"
+type = "image"
+title = "terms legal desk background"
+
+[[generated]]
+id = "oCbbDqbzdA23bIN_NtxhD"
+uri = "file://artifacts/fnashha/public/assets/bg-privacy.png"
+type = "image"
+title = "privacy policy vault background"
+
+[[generated]]
+id = "zT5Hng9a8QlhHGdvB_yFH"
+uri = "file://artifacts/fnashha/public/assets/bg-refund.png"
+type = "image"
+title = "refund policy service counter background"
+
+[[generated]]
+id = "iBVU473j1VwOn48matCod"
+uri = "file://artifacts/fnashha/public/assets/bg-login.png"
+type = "image"
+title = "login luxury entrance background"
+
+[[generated]]
+id = "QXxlqJ6sSP7oPxUe5qfM9"
+uri = "file://artifacts/fnashha/public/assets/bg-register.png"
+type = "image"
+title = "register welcome door background"
+
+[[generated]]
+id = "2gaY4LaQJcx0vlC4U1GQm"
+uri = "file://artifacts/fnashha/public/assets/bg-register-customer.png"
+type = "image"
+title = "customer registration kitchen background"
+
+[[outputs]]
+id = "3J6_Q266ohL_SrpDMGYVC"
+uri = "file://MOBILE_READINESS_AUDIT.md"
+type = "text"
+title = "Fnashha — Mobile Readiness Audit Report"
+
+[[outputs]]
+id = "-yH-hu_5pQK8WipO2KYX-"
+uri = "file://artifacts/fnashha/android/app/build/outputs/apk/release/app-release.apk"
+type = "unspecified"
+title = "Fnashha - app-release.apk"
+
+[[outputs]]
+id = "jsANzqxIOCFpSLaBZny-e"
+uri = "file://artifacts/fnashha-expo/android/app/build/outputs/apk/debug/app-debug.apk"
+type = "unspecified"
+title = "Fnashha Android Debug APK"
