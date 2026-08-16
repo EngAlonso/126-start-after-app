@@ -1,11 +1,11 @@
 {
-  "id": "a5c0d7cf-ce08-48e5-8aa4-bc46c73b41ad",
-  "createdAt": "2026-08-15T17:55:25.219Z",
+  "id": "418dc3d5-8828-4669-af4b-57b645416444",
+  "createdAt": "2026-08-15T21:12:32.220Z",
   "runtimeVersion": "1.0.0",
   "launchAsset": {
-    "key": "bundle-1786816525219-1119",
+    "key": "bundle-1786828352220-1955",
     "contentType": "application/javascript",
-    "url": "https://701ddddb-296d-4574-bd50-0e7aa5f92f3b-00-udzul6klwpn4.spock.replit.dev/1786816525219-1119/_expo/static/js/android/bundle.js"
+    "url": "https://cbc01265-3390-4034-b223-89d4cd4fd969-00-1cgqt79h75mio.spock.replit.dev/1786828352220-1955/_expo/static/js/android/bundle.js"
   },
   "assets": [],
   "metadata": {},
@@ -149,10 +149,10 @@
         "web"
       ],
       "iconUrl": "http://127.0.0.1:8081/assets/./assets/images/icon.png",
-      "hostUri": "701ddddb-296d-4574-bd50-0e7aa5f92f3b-00-udzul6klwpn4.spock.replit.dev/android"
+      "hostUri": "cbc01265-3390-4034-b223-89d4cd4fd969-00-1cgqt79h75mio.spock.replit.dev/android"
     },
     "expoGo": {
-      "debuggerHost": "701ddddb-296d-4574-bd50-0e7aa5f92f3b-00-udzul6klwpn4.spock.replit.dev/android",
+      "debuggerHost": "cbc01265-3390-4034-b223-89d4cd4fd969-00-1cgqt79h75mio.spock.replit.dev/android",
       "developer": {
         "tool": "expo-cli",
         "projectRoot": "/home/runner/workspace/artifacts/fnashha-expo"
@@ -162,6 +162,6 @@
       },
       "mainModuleName": "node_modules/.pnpm/expo-router@6.0.24_@types+react-dom@19.1.11_@types+react@19.1.17__@types+react@19.1.17__62dda290e2bf1cb2973e51c7a79b8de4/node_modules/expo-router/entry"
     },
-    "scopeKey": "@anonymous/fnashha-expo-eb6b01de-2556-4e4f-9683-9757838f5e64"
+    "scopeKey": "@anonymous/fnashha-expo-b1162c64-2097-4895-a01a-7ba6dd2a896d"
   }
 }

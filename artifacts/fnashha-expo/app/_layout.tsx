@@ -6,9 +6,6 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import {
-  Cairo_400Regular,
-  Cairo_500Medium,
-  Cairo_600SemiBold,
   Cairo_700Bold,
   useFonts,
 } from '@expo-google-fonts/cairo';
@@ -355,10 +352,13 @@ function AuthGate({ onStartupReady }: { onStartupReady: () => void }) {
 }
 
 export default function RootLayout() {
+  // Keep the existing Cairo family aliases used throughout the app, but load
+  // the supported bold face for each one so every existing Text/TextInput
+  // style becomes bold without changing screen-level typography declarations.
   const [fontsLoaded, fontError] = useFonts({
-    Cairo_400Regular,
-    Cairo_500Medium,
-    Cairo_600SemiBold,
+    Cairo_400Regular: Cairo_700Bold,
+    Cairo_500Medium: Cairo_700Bold,
+    Cairo_600SemiBold: Cairo_700Bold,
     Cairo_700Bold,
   });
   const [startupReady, setStartupReady] = useState(false);

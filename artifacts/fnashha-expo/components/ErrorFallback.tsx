@@ -191,6 +191,7 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 16,
+    fontWeight: '700',
     textAlign: 'center',
     lineHeight: 24,
   },
@@ -220,7 +221,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   buttonText: {
-    fontWeight: '600',
+    fontWeight: '700',
     textAlign: 'center',
     fontSize: 16,
   },
@@ -246,7 +247,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   closeButton: {
     width: 44,
@@ -268,6 +269,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 12,
+    fontWeight: '700',
     lineHeight: 18,
     width: '100%',
   },
