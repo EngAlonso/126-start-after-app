@@ -364,6 +364,59 @@ router.patch("/admin/staff/:id", authenticate, requirePermission("admin.edit"), 
   }
 });
 
+// Reactivate a soft-deleted staff account and set a new password.
+// Delete intentionally clears the old password, so changing status alone
+// would leave the account unable to authenticate.
+router.post("/admin/staff/:id/reactivate", authenticate, requirePermission("admin.edit"), async (req, res) => {
+  try {
+    const id = parseInt(req.params["id"] as string);
+    const target = await db
+      .select({
+        role: usersTable.role,
+        status: usersTable.status,
+        isFounder: usersTable.isFounder,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.id, id))
+      .limit(1);
+
+    if (target.length === 0 || target[0].role !== "admin" || target[0].isFounder) {
+      return res.status(404).json({ error: "الموظف غير موجود" });
+    }
+    if (target[0].status !== "deleted") {
+      return res.status(400).json({ error: "الحساب ليس محذوفاً" });
+    }
+
+    const password = typeof req.body?.password === "string" ? req.body.password : "";
+    if (password.trim().length < 8) {
+      return res.status(400).json({ error: "كلمة المرور يجب أن تكون 8 أحرف على الأقل" });
+    }
+
+    const bcrypt = await import("bcryptjs");
+    const passwordHash = await bcrypt.default.hash(password, 10);
+    await db
+      .update(usersTable)
+      .set({
+        status: "active",
+        passwordHash,
+        suspensionReason: null,
+        bannedUntil: null,
+        updatedAt: new Date(),
+      } as any)
+      .where(eq(usersTable.id, id));
+
+    await logActivity(
+      req.user!.id,
+      "إعادة تفعيل موظف",
+      `تمت إعادة تفعيل حساب الموظف #${id}`,
+      req.ip
+    );
+    return res.json({ success: true });
+  } catch {
+    return res.status(500).json({ error: "حدث خطأ في الخادم" });
+  }
+});
+
 // Update permissions: requires admin.permissions; cannot target super_admin or Founder
 router.patch("/admin/staff/:id/permissions", authenticate, requirePermission("admin.permissions"), async (req, res) => {
   try {

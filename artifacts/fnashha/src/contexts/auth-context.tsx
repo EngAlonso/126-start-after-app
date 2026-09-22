@@ -154,6 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // the same in-flight promise instead of firing N parallel /auth/refresh
   // requests (which would race each other through token rotation).
   const refreshInFlightRef = useRef<Promise<string | null> | null>(null);
+  const refreshFailureRef = useRef<"unauthorized" | "transient" | null>(null);
 
   useEffect(() => {
     try {
@@ -256,97 +257,150 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {}
   }, [token]);
 
+  const logoutRef = useRef(logout);
+  useEffect(() => {
+    logoutRef.current = logout;
+  }, [logout]);
+
+  const refreshAccessToken = useCallback(async (): Promise<string | null> => {
+    refreshFailureRef.current = null;
+
+    const knownRefreshToken = refreshTokenRef.current;
+    const beforeCoordination = readStoredAuthTokens();
+    const currentRefreshToken = beforeCoordination.refreshToken || knownRefreshToken;
+    const currentAccessToken = beforeCoordination.accessToken;
+
+    if (beforeCoordination.refreshToken && beforeCoordination.refreshToken !== knownRefreshToken) {
+      refreshTokenRef.current = beforeCoordination.refreshToken;
+      if (currentAccessToken) {
+        setToken(currentAccessToken);
+        return currentAccessToken;
+      }
+    }
+
+    const rt = currentRefreshToken;
+    if (!rt) return null;
+
+    if (!refreshInFlightRef.current) {
+      refreshInFlightRef.current = withCrossTabRefreshLock(async () => {
+        try {
+          // Another tab may have completed rotation while this tab was
+          // waiting for the browser-wide lock. Adopt those tokens instead
+          // of submitting the already-rotated refresh token.
+          const latest = readStoredAuthTokens();
+          if (latest.refreshToken !== rt && latest.accessToken) {
+            refreshTokenRef.current = latest.refreshToken;
+            setToken(latest.accessToken);
+            return latest.accessToken;
+          }
+
+          const deviceId = getOrCreateDeviceId();
+          const res = await fetch(`${API_BASE}/api/auth/refresh`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refreshToken: latest.refreshToken || rt, deviceId }),
+          });
+
+          if (!res.ok) {
+            const afterFailure = readStoredAuthTokens();
+            if (
+              afterFailure.refreshToken &&
+              afterFailure.refreshToken !== (latest.refreshToken || rt) &&
+              afterFailure.accessToken
+            ) {
+              refreshTokenRef.current = afterFailure.refreshToken;
+              setToken(afterFailure.accessToken);
+              return afterFailure.accessToken;
+            }
+            refreshFailureRef.current = res.status === 401 ? "unauthorized" : "transient";
+            return null;
+          }
+
+          const data = await res.json();
+          const newAccessToken: string = data.accessToken || data.token;
+          const newRefreshToken: string | undefined = data.refreshToken;
+          if (!newAccessToken) {
+            refreshFailureRef.current = "transient";
+            return null;
+          }
+
+          refreshTokenRef.current = newRefreshToken || latest.refreshToken || rt;
+          setToken(newAccessToken);
+          try {
+            localStorage.setItem("fnashha_token", newAccessToken);
+            if (newRefreshToken) {
+              localStorage.setItem("fnashha_refresh_token", newRefreshToken);
+            }
+          } catch {}
+          return newAccessToken;
+        } catch (error) {
+          if (error instanceof RefreshLockTimeoutError) {
+            const latest = readStoredAuthTokens();
+            if (latest.accessToken && latest.refreshToken && latest.refreshToken !== rt) {
+              refreshTokenRef.current = latest.refreshToken;
+              setToken(latest.accessToken);
+              return latest.accessToken;
+            }
+          }
+          refreshFailureRef.current = "transient";
+          return null;
+        }
+      }).finally(() => {
+        refreshInFlightRef.current = null;
+      });
+    }
+
+    return refreshInFlightRef.current;
+  }, []);
+
   // Transparent access-token refresh: registered once so every request made
   // through the generated API client (any page, any hook) automatically
   // retries once after a silent refresh instead of bouncing the user to the
   // login page on every 15-minute access-token expiry.
   useEffect(() => {
     setUnauthorizedHandler(async () => {
-      const knownRefreshToken = refreshTokenRef.current;
-      const beforeCoordination = readStoredAuthTokens();
-      const currentRefreshToken = beforeCoordination.refreshToken || knownRefreshToken;
-      const currentAccessToken = beforeCoordination.accessToken;
-      if (beforeCoordination.refreshToken && beforeCoordination.refreshToken !== knownRefreshToken) {
-        refreshTokenRef.current = beforeCoordination.refreshToken;
-        if (currentAccessToken) {
-          setToken(currentAccessToken);
-          return currentAccessToken;
+      let freshToken = await refreshAccessToken();
+      if (!freshToken && refreshFailureRef.current === "unauthorized") {
+        // A different tab may finish rotating the token just after this
+        // request. Give it a moment and retry with the latest localStorage
+        // value before deciding that the session is genuinely invalid.
+        await waitForRefreshLock(750);
+        freshToken = await refreshAccessToken();
+        if (!freshToken && refreshFailureRef.current === "unauthorized") {
+          logoutRef.current();
         }
       }
-
-      const rt = currentRefreshToken;
-      if (!rt) return null;
-
-      if (!refreshInFlightRef.current) {
-        refreshInFlightRef.current = withCrossTabRefreshLock(async () => {
-          try {
-            // Another tab may have completed rotation while this tab was
-            // waiting for the browser-wide lock. Adopt those tokens instead
-            // of submitting the already-rotated refresh token.
-            const latest = readStoredAuthTokens();
-            if (latest.refreshToken !== rt && latest.accessToken) {
-              refreshTokenRef.current = latest.refreshToken;
-              setToken(latest.accessToken);
-              return latest.accessToken;
-            }
-
-            const deviceId = getOrCreateDeviceId();
-            const res = await fetch(`${API_BASE}/api/auth/refresh`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ refreshToken: latest.refreshToken || rt, deviceId }),
-            });
-            if (!res.ok) {
-              // A context without the browser lock may still observe a
-              // rotation completed by another context immediately after its
-              // last token read. Adopt that pair instead of logging out.
-              const afterFailure = readStoredAuthTokens();
-              if (
-                afterFailure.refreshToken &&
-                afterFailure.refreshToken !== (latest.refreshToken || rt) &&
-                afterFailure.accessToken
-              ) {
-                refreshTokenRef.current = afterFailure.refreshToken;
-                setToken(afterFailure.accessToken);
-                return afterFailure.accessToken;
-              }
-              // This context was the one that performed the refresh, so a
-              // 401 is a genuine invalid/expired/revoked refresh-token
-              // failure rather than another tab winning. Other failures are
-              // left retryable and do not destroy an otherwise valid session.
-              if (res.status === 401) logout();
-              return null;
-            }
-            const data = await res.json();
-            const newAccessToken: string = data.accessToken || data.token;
-            const newRefreshToken: string | undefined = data.refreshToken;
-            refreshTokenRef.current = newRefreshToken || null;
-            setToken(newAccessToken);
-            try {
-              localStorage.setItem("fnashha_token", newAccessToken);
-              if (newRefreshToken) localStorage.setItem("fnashha_refresh_token", newRefreshToken);
-            } catch {}
-            return newAccessToken;
-          } catch (error) {
-            if (error instanceof RefreshLockTimeoutError) {
-              const latest = readStoredAuthTokens();
-              if (latest.accessToken && latest.refreshToken && latest.refreshToken !== rt) {
-                refreshTokenRef.current = latest.refreshToken;
-                setToken(latest.accessToken);
-                return latest.accessToken;
-              }
-            }
-            return null;
-          }
-        }).finally(() => {
-          refreshInFlightRef.current = null;
-        });
-      }
-      return refreshInFlightRef.current;
+      return freshToken;
     });
     return () => setUnauthorizedHandler(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshAccessToken]);
+
+  // Keep sessions alive for pages that use direct fetch calls instead of the
+  // generated API client. Those calls cannot trigger the 401 retry handler,
+  // so refresh proactively every five minutes while a session exists.
+  useEffect(() => {
+    const refreshIfSignedIn = () => {
+      const stored = readStoredAuthTokens();
+      if (!stored.accessToken || !stored.refreshToken) return;
+      // Background refresh must not log the user out over one stale token or
+      // a temporary server/network failure. A foreground API request will
+      // retry and decide whether the session is genuinely invalid.
+      void refreshAccessToken();
+    };
+
+    refreshIfSignedIn();
+    const interval = window.setInterval(refreshIfSignedIn, 5 * 60 * 1000);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") refreshIfSignedIn();
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [refreshAccessToken]);
 
   const hasPermission = useCallback(
     (key: string): boolean => {

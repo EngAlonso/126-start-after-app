@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { PlusCircle, Users2, Shield, Edit2, Trash2, Key } from "lucide-react";
+import { PlusCircle, Users2, Shield, Edit2, Trash2, Key, UserCheck } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { PERMISSION_GROUPS, ALL_PERMISSION_KEYS } from "@/lib/permissions";
 import { API_BASE } from "@/lib/api-config";
@@ -50,6 +50,9 @@ export default function AdminStaff() {
   const [editTarget, setEditTarget] = useState<any | null>(null);
   const [editSaving, setEditSaving] = useState(false);
   const [editForm, setEditForm] = useState({ fullName: "", mobile: "", jobTitle: "", password: "" });
+  const [reactivateTarget, setReactivateTarget] = useState<any | null>(null);
+  const [reactivatePassword, setReactivatePassword] = useState("");
+  const [reactivating, setReactivating] = useState(false);
 
   const { data: staff = [], isLoading } = useListAdminStaff({ query: { queryKey: getListAdminStaffQueryKey() } });
   const createMutation = useCreateAdminStaff();
@@ -145,6 +148,32 @@ export default function AdminStaff() {
     }
   };
 
+  const reactivateStaff = async () => {
+    if (!reactivateTarget) return;
+    if (reactivatePassword.trim().length < 8) {
+      toast({ title: "خطأ", description: "كلمة المرور يجب أن تكون 8 أحرف على الأقل", variant: "destructive" });
+      return;
+    }
+
+    setReactivating(true);
+    try {
+      await apiCall(
+        `/admin/staff/${reactivateTarget.id}/reactivate`,
+        "POST",
+        { password: reactivatePassword },
+        token || "",
+      );
+      queryClient.invalidateQueries({ queryKey: getListAdminStaffQueryKey() });
+      toast({ title: "تمت إعادة تفعيل الموظف" });
+      setReactivateTarget(null);
+      setReactivatePassword("");
+    } catch (err: any) {
+      toast({ title: "خطأ", description: err.message, variant: "destructive" });
+    } finally {
+      setReactivating(false);
+    }
+  };
+
   const PermissionCheckboxes = ({ list, setList }: { list: string[]; setList: (v: string[]) => void }) => (
     <div className="space-y-4 max-h-96 overflow-y-auto">
       {PERMISSION_GROUPS.map((group) => {
@@ -227,6 +256,9 @@ export default function AdminStaff() {
                       <Badge className={isSA ? "bg-purple-100 text-purple-800 border-0" : "bg-blue-100 text-blue-800 border-0"}>
                         {isSA ? "مدير عام" : "مدير"}
                       </Badge>
+                       {s.status === "deleted" && (
+                         <Badge className="bg-red-100 text-red-800 border-0">محذوف</Badge>
+                       )}
                       {!isSA && (
                         <Badge variant="outline" className="text-xs gap-1">
                           <Shield className="w-3 h-3" />
@@ -246,7 +278,21 @@ export default function AdminStaff() {
                               الصلاحيات
                             </Button>
                           )}
-                          {(isSuperAdmin || hasPermission("admin.delete")) && (
+                          {s.status === "deleted" && (isSuperAdmin || hasPermission("admin.edit")) ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-700 border-green-300 hover:bg-green-50"
+                              onClick={() => {
+                                setReactivateTarget(s);
+                                setReactivatePassword("");
+                              }}
+                              data-testid={`button-reactivate-${s.id}`}
+                            >
+                              <UserCheck className="w-3 h-3 ms-1" />
+                              إعادة تفعيل
+                            </Button>
+                          ) : (isSuperAdmin || hasPermission("admin.delete")) && (
                             <Button
                               size="sm"
                               variant="destructive"
@@ -277,6 +323,45 @@ export default function AdminStaff() {
           })}
         </div>
       )}
+
+      {/* Reactivate Staff Dialog */}
+      <Dialog open={!!reactivateTarget} onOpenChange={(open) => {
+        if (!open) {
+          setReactivateTarget(null);
+          setReactivatePassword("");
+        }
+      }}>
+        <DialogContent className="max-w-md" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>إعادة تفعيل {reactivateTarget?.fullName}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            الحساب محذوف. اختر كلمة مرور جديدة للموظف حتى يتمكن من تسجيل الدخول.
+          </p>
+          <div className="space-y-2 mt-2">
+            <Label htmlFor="reactivate-password">كلمة المرور الجديدة</Label>
+            <Input
+              id="reactivate-password"
+              type="password"
+              value={reactivatePassword}
+              onChange={(e) => setReactivatePassword(e.target.value)}
+              placeholder="8 أحرف على الأقل"
+              autoComplete="new-password"
+            />
+          </div>
+          <div className="flex gap-2 justify-end pt-2">
+            <Button variant="outline" onClick={() => {
+              setReactivateTarget(null);
+              setReactivatePassword("");
+            }}>
+              إلغاء
+            </Button>
+            <Button onClick={reactivateStaff} disabled={reactivating}>
+              {reactivating ? "جاري التفعيل..." : "تفعيل الحساب"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Staff Dialog */}
       <Dialog open={!!editTarget} onOpenChange={(open) => { if (!open) setEditTarget(null); }}>
