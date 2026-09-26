@@ -1,17 +1,13 @@
-# =============================================================================
-# Fnashha Auto-Deploy to CloudPanel via SSH
-# Triggers on push to main branch
-# =============================================================================
 name: Deploy to Production
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
 
 concurrency:
   group: production-deploy
-  cancel-in-progress: false  # Don't cancel running deploys
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -31,30 +27,8 @@ jobs:
           command_timeout: 600s
           script: |
             echo "=== Starting Fnashha Deployment ==="
-            echo "Commit: ${{ github.sha }}"
-            echo "Branch: ${{ github.ref_name }}"
-            echo ""
-
-            # Load NVM (required for non-interactive SSH sessions)
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-
-            # Navigate to project and execute deploy script
             cd /home/fnashha/htdocs/fnashha.com
             bash deploy.sh
-
-            echo ""
             echo "=== Deployment Complete ==="
-
-      - name: 📋 Deployment Summary
-        if: always()
-        run: |
-          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Branch** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Triggered by** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Status** | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Domain** | [fnashha.com](https://fnashha.com) |" >> $GITHUB_STEP_SUMMARY
