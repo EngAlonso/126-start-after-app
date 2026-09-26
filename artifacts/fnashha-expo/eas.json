@@ -14,7 +14,10 @@
       "channel": "preview"
     },
     "production": {
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://fnashha.com"
+      }
     }
   },
   "submit": {
