@@ -2,3 +2,4 @@
 - [Campaign inactivity activity timestamp](campaign-inactivity.md) — Inactivity uses completed request updated_at, matching the existing completion transition.
 - [Acceptance query aggregation](acceptance-query-aggregation.md) — Keep grouped target and population assertions separate to avoid test-only join fan-out.
 - [Android referral app links](android-referral-app-links.md) — Use a slash-terminated referral path prefix to avoid claiming unrelated `/r...` web routes.
+- [Workspace dependency installation](workspace-dependency-installation.md) — When the full pnpm install is blocked by a dev-only package, install the affected artifact with its dependency closure.
